@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ôn tập từ vựng · 商务汉语 + Pinyin Rocket</title>
 <style>
@@ -855,6 +856,26 @@
 </head>
 <body>
 
+<!-- ============ BỘ BẮT LỖI HIỂN THỊ ============ -->
+<div id="errorDisplay" style="display:none;position:fixed;top:0;left:0;right:0;background:#d4183d;color:#fff;padding:16px 20px;z-index:99999;font-family:monospace;font-size:14px;line-height:1.5;box-shadow:0 4px 20px rgba(0,0,0,.4);max-height:50vh;overflow-y:auto;white-space:pre-wrap;"></div>
+<script>
+window.onerror = function(msg, url, line, col){
+  var e = document.getElementById('errorDisplay');
+  if (e) {
+    e.style.display = 'block';
+    e.textContent = '❌ LỖI JAVASCRIPT\n\n' + msg + '\n\nDòng: ' + line + ':' + col + '\nFile: ' + (url || '(inline)') + '\n\nHãy chụp màn hình này gửi lại để được hỗ trợ.';
+  }
+  return false;
+};
+window.addEventListener('unhandledrejection', function(ev){
+  var e = document.getElementById('errorDisplay');
+  if (e) {
+    e.style.display = 'block';
+    e.textContent = '❌ LỖI PROMISE\n\n' + (ev.reason && ev.reason.message ? ev.reason.message : ev.reason);
+  }
+});
+</script>
+
 <div class="blob b1"></div>
 <div class="blob b2"></div>
 <div class="blob b3"></div>
@@ -1079,9 +1100,9 @@
 
 <script>
 /* =========================================================
-   DỮ LIỆU TỪ VỰNG — dùng cho toàn bộ app và Pinyin Rocket
+   DỮ LIỆU TỪ VỰNG
 ========================================================= */
-const WORDS = [
+var WORDS = [
  {id:1,hanzi:"到达",pinyin:"dàodá",vi:"đến, tới",
   ex:[{zh:"我们的代表今天下午到达公司。",vi:"Người đại diện của chúng tôi chiều nay sẽ đến công ty."},
       {zh:"客户已经到达酒店，我们现在可以去接他了。",vi:"Khách hàng đã đến khách sạn rồi, bây giờ chúng ta có thể đi đón anh ấy."}]},
@@ -1177,7 +1198,7 @@ const WORDS = [
 /* =========================================================
    PHÁT ÂM (TTS)
 ========================================================= */
-let voices = [];
+var voices = [];
 function loadVoices(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
 if('speechSynthesis' in window){
   loadVoices();
@@ -1187,27 +1208,27 @@ function speak(text, lang){
   if(!('speechSynthesis' in window)) return;
   try{
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    var u = new SpeechSynthesisUtterance(text);
     u.lang = lang || 'zh-CN';
     u.rate = parseFloat(document.getElementById('rate').value) || 1;
     u.pitch = 1.02;
-    const v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith('zh'));
+    var v = voices.find(function(x){ return x.lang && x.lang.toLowerCase().indexOf('zh') === 0; });
     if(v) u.voice = v;
     speechSynthesis.speak(u);
   }catch(e){}
 }
-const rateEl = document.getElementById('rate');
-const rateValEl = document.getElementById('rateVal');
-rateEl.addEventListener('input', ()=>{ rateValEl.textContent = parseFloat(rateEl.value).toFixed(1) + 'x'; });
+var rateEl = document.getElementById('rate');
+var rateValEl = document.getElementById('rateVal');
+rateEl.addEventListener('input', function(){ rateValEl.textContent = parseFloat(rateEl.value).toFixed(1) + 'x'; });
 rateValEl.textContent = parseFloat(rateEl.value).toFixed(1) + 'x';
 
 /* =========================================================
    TABS
 ========================================================= */
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
     tab.classList.add('active');
     document.getElementById(tab.dataset.target).classList.add('active');
     window.scrollTo({top:0, behavior:'smooth'});
@@ -1217,10 +1238,10 @@ document.querySelectorAll('.tab').forEach(tab=>{
     }
   });
 });
-document.querySelectorAll('.subtab').forEach(st=>{
-  st.addEventListener('click', ()=>{
-    document.querySelectorAll('.subtab').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.subpanel').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.subtab').forEach(function(st){
+  st.addEventListener('click', function(){
+    document.querySelectorAll('.subtab').forEach(function(x){ x.classList.remove('active'); });
+    document.querySelectorAll('.subpanel').forEach(function(x){ x.classList.remove('active'); });
     st.classList.add('active');
     document.getElementById('sub-' + st.dataset.sub).classList.add('active');
   });
@@ -1229,53 +1250,47 @@ document.querySelectorAll('.subtab').forEach(st=>{
 /* =========================================================
    TỪ VỰNG
 ========================================================= */
-const grid = document.getElementById('vocabGrid');
+var grid = document.getElementById('vocabGrid');
 function renderVocab(list){
   grid.innerHTML = '';
-  list.forEach(w=>{
-    const card = document.createElement('div');
+  list.forEach(function(w){
+    var card = document.createElement('div');
     card.className = 'vcard';
-    card.innerHTML = `
-      <span class="v-idx">${String(w.id).padStart(2,'0')}</span>
-      <div class="v-top">
-        <div>
-          <div class="v-hanzi">${w.hanzi}</div>
-          <div class="v-pinyin">${w.pinyin}</div>
-        </div>
-        <button class="spk" title="Nghe">🔊</button>
-      </div>
-      <div class="v-vi">${w.vi}</div>
-      <div class="v-ex">
-        ${w.ex.map(e=>`<div class="ex-item"><div class="ex-zh">${e.zh}</div><div class="ex-vi">${e.vi}</div></div>`).join('')}
-      </div>`;
-    card.querySelector('.spk').addEventListener('click', ev=>{ ev.stopPropagation(); speak(w.hanzi); });
-    card.addEventListener('click', ()=> card.classList.toggle('open'));
+    card.innerHTML = '<span class="v-idx">' + String(w.id).padStart(2,'0') + '</span>' +
+      '<div class="v-top"><div><div class="v-hanzi">' + w.hanzi + '</div><div class="v-pinyin">' + w.pinyin + '</div></div>' +
+      '<button class="spk" title="Nghe">🔊</button></div>' +
+      '<div class="v-vi">' + w.vi + '</div>' +
+      '<div class="v-ex">' + w.ex.map(function(e){
+        return '<div class="ex-item"><div class="ex-zh">' + e.zh + '</div><div class="ex-vi">' + e.vi + '</div></div>';
+      }).join('') + '</div>';
+    card.querySelector('.spk').addEventListener('click', function(ev){ ev.stopPropagation(); speak(w.hanzi); });
+    card.addEventListener('click', function(){ card.classList.toggle('open'); });
     grid.appendChild(card);
   });
 }
 renderVocab(WORDS);
-document.getElementById('search').addEventListener('input', e=>{
-  const q = e.target.value.trim().toLowerCase();
+document.getElementById('search').addEventListener('input', function(e){
+  var q = e.target.value.trim().toLowerCase();
   if(!q){ renderVocab(WORDS); return; }
-  const filtered = WORDS.filter(w =>
-    w.hanzi.toLowerCase().includes(q) ||
-    w.pinyin.toLowerCase().includes(q) ||
-    w.vi.toLowerCase().includes(q)
-  );
+  var filtered = WORDS.filter(function(w){
+    return w.hanzi.toLowerCase().indexOf(q) !== -1 ||
+           w.pinyin.toLowerCase().indexOf(q) !== -1 ||
+           w.vi.toLowerCase().indexOf(q) !== -1;
+  });
   renderVocab(filtered);
 });
 
 /* =========================================================
    LUYỆN VIẾT
 ========================================================= */
-const canvas = document.getElementById('writeCanvas');
-const ctx = canvas.getContext('2d');
-let undoStack = [];
-let drawing = false, lastX = 0, lastY = 0;
+var canvas = document.getElementById('writeCanvas');
+var ctx = canvas.getContext('2d');
+var undoStack = [];
+var drawing = false, lastX = 0, lastY = 0;
 
 function setupCanvas(){
-  const dpr = window.devicePixelRatio || 1;
-  const SIZE = 400;
+  var dpr = window.devicePixelRatio || 1;
+  var SIZE = 400;
   canvas.width  = SIZE * dpr;
   canvas.height = SIZE * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1288,7 +1303,7 @@ function setupCanvas(){
   updateUndoBtn();
 }
 function getPos(e){
-  const r = canvas.getBoundingClientRect();
+  var r = canvas.getBoundingClientRect();
   return { x:(e.clientX - r.left) * (400 / r.width), y:(e.clientY - r.top) * (400 / r.height) };
 }
 function pushUndo(){
@@ -1299,56 +1314,56 @@ function pushUndo(){
   updateUndoBtn();
 }
 function updateUndoBtn(){
-  const b = document.getElementById('undoBtn');
+  var b = document.getElementById('undoBtn');
   b.disabled = undoStack.length === 0;
   b.style.opacity = undoStack.length === 0 ? .45 : 1;
 }
-canvas.addEventListener('pointerdown', e=>{
+canvas.addEventListener('pointerdown', function(e){
   e.preventDefault();
   try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
   drawing = true;
   pushUndo();
-  const p = getPos(e);
+  var p = getPos(e);
   lastX = p.x; lastY = p.y;
   ctx.beginPath();
   ctx.arc(p.x, p.y, ctx.lineWidth/2, 0, Math.PI*2);
   ctx.fill();
 });
-canvas.addEventListener('pointermove', e=>{
+canvas.addEventListener('pointermove', function(e){
   if(!drawing) return;
   e.preventDefault();
-  const p = getPos(e);
+  var p = getPos(e);
   ctx.beginPath();
   ctx.moveTo(lastX, lastY);
   ctx.lineTo(p.x, p.y);
   ctx.stroke();
   lastX = p.x; lastY = p.y;
 });
-['pointerup','pointercancel','pointerleave'].forEach(ev=>{
-  canvas.addEventListener(ev, ()=>{ drawing = false; });
+['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+  canvas.addEventListener(ev, function(){ drawing = false; });
 });
-document.getElementById('undoBtn').addEventListener('click', ()=>{
-  const img = undoStack.pop();
+document.getElementById('undoBtn').addEventListener('click', function(){
+  var img = undoStack.pop();
   if(img) ctx.putImageData(img, 0, 0);
   updateUndoBtn();
 });
-document.getElementById('clearBtn').addEventListener('click', ()=>{
+document.getElementById('clearBtn').addEventListener('click', function(){
   ctx.clearRect(0, 0, 400, 400);
   undoStack = [];
   updateUndoBtn();
-  const wrap = canvas.parentElement;
+  var wrap = canvas.parentElement;
   wrap.animate([{transform:'scale(1)'},{transform:'scale(.97)'},{transform:'scale(1)'}],
     {duration:220, easing:'ease-out'});
 });
-const writeSelect = document.getElementById('writeSelect');
-WORDS.forEach(w=>{
-  const o = document.createElement('option');
+var writeSelect = document.getElementById('writeSelect');
+WORDS.forEach(function(w){
+  var o = document.createElement('option');
   o.value = w.id;
-  o.textContent = `${w.hanzi}  ·  ${w.pinyin}`;
+  o.textContent = w.hanzi + '  ·  ' + w.pinyin;
   writeSelect.appendChild(o);
 });
 function setWriteWord(id){
-  const w = WORDS.find(x=>x.id === Number(id)) || WORDS[0];
+  var w = WORDS.find(function(x){ return x.id === Number(id); }) || WORDS[0];
   document.getElementById('wChar').textContent = w.hanzi;
   document.getElementById('wPinyin').textContent = w.pinyin;
   document.getElementById('wVi').textContent = w.vi;
@@ -1357,82 +1372,82 @@ function setWriteWord(id){
   undoStack = [];
   updateUndoBtn();
 }
-writeSelect.addEventListener('change', e => setWriteWord(e.target.value));
-document.getElementById('randomBtn').addEventListener('click', ()=>{
-  const w = WORDS[Math.floor(Math.random()*WORDS.length)];
+writeSelect.addEventListener('change', function(e){ setWriteWord(e.target.value); });
+document.getElementById('randomBtn').addEventListener('click', function(){
+  var w = WORDS[Math.floor(Math.random()*WORDS.length)];
   setWriteWord(w.id);
 });
-document.getElementById('wSpeak').addEventListener('click', ()=>{
-  const w = WORDS.find(x=>x.id === Number(writeSelect.value));
+document.getElementById('wSpeak').addEventListener('click', function(){
+  var w = WORDS.find(function(x){ return x.id === Number(writeSelect.value); });
   if(w) speak(w.hanzi);
 });
 setupCanvas();
 setWriteWord(1);
 
 /* =========================================================
-   TRÒ CHƠI ÔN TẬP TỪ VỰNG (quiz)
+   TRÒ CHƠI ÔN TẬP (quiz)
 ========================================================= */
-const shuffle = arr => {
-  const a = [...arr];
-  for(let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
   }
   return a;
-};
+}
 function pickDistractors(target, n){
-  const others = WORDS.filter(w => w.hanzi !== target.hanzi);
+  var others = WORDS.filter(function(w){ return w.hanzi !== target.hanzi; });
   return shuffle(others).slice(0, n);
 }
-let gs = null;
-const elStart  = document.getElementById('gameStart');
-const elPlay   = document.getElementById('gamePlay');
-const elEnd    = document.getElementById('gameEnd');
+var gs = null;
+var elStart  = document.getElementById('gameStart');
+var elPlay   = document.getElementById('gamePlay');
+var elEnd    = document.getElementById('gameEnd');
 
-document.querySelectorAll('.mode-btn').forEach(b=>{
-  b.addEventListener('click', ()=> startGame(b.dataset.mode));
+document.querySelectorAll('.mode-btn').forEach(function(b){
+  b.addEventListener('click', function(){ startGame(b.dataset.mode); });
 });
 function startGame(mode){
-  const pool = shuffle(WORDS).slice(0, 10);
-  gs = { mode, pool, i:0, score:0, streak:0, correct:0, locked:false };
+  var pool = shuffle(WORDS).slice(0, 10);
+  gs = { mode: mode, pool: pool, i:0, score:0, streak:0, correct:0, locked:false };
   elStart.hidden = true;
   elEnd.hidden = true;
   elPlay.hidden = false;
   renderQuestion();
 }
 function renderQuestion(){
-  const w = gs.pool[gs.i];
+  var w = gs.pool[gs.i];
   gs.locked = false;
   document.getElementById('qNum').textContent = gs.i + 1;
   document.getElementById('score').textContent = gs.score;
   document.getElementById('streak').textContent = gs.streak;
   document.getElementById('progressBar').style.width = (gs.i / gs.pool.length * 100) + '%';
-  const qBox = document.getElementById('questionBox');
-  const optBox = document.getElementById('optionsBox');
-  const fb = document.getElementById('feedback');
+  var qBox = document.getElementById('questionBox');
+  var optBox = document.getElementById('optionsBox');
+  var fb = document.getElementById('feedback');
   optBox.innerHTML = '';
   fb.textContent = '';
   fb.className = 'feedback';
-  const opts = shuffle([w, ...pickDistractors(w, 3)]);
+  var opts = shuffle([w].concat(pickDistractors(w, 3)));
   if(gs.mode === 'vi2zh'){
-    qBox.innerHTML = `<div class="q-label">Nghĩa tiếng Việt</div><div class="q-text">${w.vi}</div>`;
-    opts.forEach(o=>{
-      const b = document.createElement('button');
+    qBox.innerHTML = '<div class="q-label">Nghĩa tiếng Việt</div><div class="q-text">' + w.vi + '</div>';
+    opts.forEach(function(o){
+      var b = document.createElement('button');
       b.className = 'opt';
       b.textContent = o.hanzi;
-      b.addEventListener('click', ()=> answer(b, o === w, w));
+      b.addEventListener('click', function(){ answer(b, o === w, w); });
       optBox.appendChild(b);
     });
   } else {
-    qBox.innerHTML = `<div class="q-label">Nghe và chọn nghĩa đúng</div>
-      <button class="big-speak" id="playAudio" title="Nghe lại">🔊</button>`;
-    document.getElementById('playAudio').addEventListener('click', ()=> speak(w.hanzi));
-    setTimeout(()=> speak(w.hanzi), 350);
-    opts.forEach(o=>{
-      const b = document.createElement('button');
+    qBox.innerHTML = '<div class="q-label">Nghe và chọn nghĩa đúng</div>' +
+      '<button class="big-speak" id="playAudio" title="Nghe lại">🔊</button>';
+    document.getElementById('playAudio').addEventListener('click', function(){ speak(w.hanzi); });
+    setTimeout(function(){ speak(w.hanzi); }, 350);
+    opts.forEach(function(o){
+      var b = document.createElement('button');
       b.className = 'opt';
       b.textContent = o.vi;
-      b.addEventListener('click', ()=> answer(b, o === w, w));
+      b.addEventListener('click', function(){ answer(b, o === w, w); });
       optBox.appendChild(b);
     });
   }
@@ -1440,29 +1455,29 @@ function renderQuestion(){
 function answer(btn, isCorrect, w){
   if(gs.locked) return;
   gs.locked = true;
-  const fb = document.getElementById('feedback');
+  var fb = document.getElementById('feedback');
   if(isCorrect){
     btn.classList.add('correct');
     gs.streak++;
     gs.correct++;
-    const pts = 10 + Math.min(gs.streak - 1, 5) * 2;
+    var pts = 10 + Math.min(gs.streak - 1, 5) * 2;
     gs.score += pts;
-    fb.textContent = `✅ Chính xác! +${pts} điểm`;
+    fb.textContent = '✅ Chính xác! +' + pts + ' điểm';
     fb.className = 'feedback ok';
   } else {
     btn.classList.add('wrong');
     gs.streak = 0;
-    fb.textContent = `❌ Sai rồi! Đáp án: ${w.hanzi} (${w.pinyin}) – ${w.vi}`;
+    fb.textContent = '❌ Sai rồi! Đáp án: ' + w.hanzi + ' (' + w.pinyin + ') – ' + w.vi;
     fb.className = 'feedback bad';
-    [...document.querySelectorAll('.opt')].forEach(b=>{
-      const target = gs.mode === 'vi2zh' ? w.hanzi : w.vi;
+    document.querySelectorAll('.opt').forEach(function(b){
+      var target = gs.mode === 'vi2zh' ? w.hanzi : w.vi;
       if(b.textContent === target) b.classList.add('correct');
     });
   }
   speak(w.hanzi);
   document.getElementById('score').textContent = gs.score;
   document.getElementById('streak').textContent = gs.streak;
-  setTimeout(()=>{
+  setTimeout(function(){
     gs.i++;
     if(gs.i >= gs.pool.length) endGame();
     else renderQuestion();
@@ -1472,22 +1487,22 @@ function endGame(){
   elPlay.hidden = true;
   elEnd.hidden = false;
   document.getElementById('finalScore').textContent = gs.score + ' ⭐';
-  const ratio = gs.correct / gs.pool.length;
-  let msg;
+  var ratio = gs.correct / gs.pool.length;
+  var msg;
   if(ratio === 1)      msg = '🏆 Tuyệt vời! Bạn trả lời đúng tất cả!';
-  else if(ratio >= .8) msg = `🎉 Rất giỏi! Bạn đúng ${gs.correct}/10 câu.`;
-  else if(ratio >= .6) msg = `👍 Khá tốt! Bạn đúng ${gs.correct}/10 câu. Cố thêm nhé!`;
-  else                 msg = `💪 Bạn đúng ${gs.correct}/10 câu. Ôn lại từ vựng rồi chơi lại nhé!`;
+  else if(ratio >= .8) msg = '🎉 Rất giỏi! Bạn đúng ' + gs.correct + '/10 câu.';
+  else if(ratio >= .6) msg = '👍 Khá tốt! Bạn đúng ' + gs.correct + '/10 câu. Cố thêm nhé!';
+  else                 msg = '💪 Bạn đúng ' + gs.correct + '/10 câu. Ôn lại từ vựng rồi chơi lại nhé!';
   document.getElementById('finalMsg').textContent = msg;
 }
-document.getElementById('replayBtn').addEventListener('click', ()=>{ elEnd.hidden = true; startGame(gs.mode); });
-document.getElementById('homeBtn').addEventListener('click', ()=>{ elEnd.hidden = true; elStart.hidden = false; });
+document.getElementById('replayBtn').addEventListener('click', function(){ elEnd.hidden = true; startGame(gs.mode); });
+document.getElementById('homeBtn').addEventListener('click', function(){ elEnd.hidden = true; elStart.hidden = false; });
 
 /* =========================================================
    BÀI TẬP 1 · ĐIỀN TỪ
 ========================================================= */
-const BANK = ["申报单","手续","产品","免税","酒店","填","广告","招手","老板","顺利","货样","总算","超过","交税"];
-const FILLS = [
+var BANK = ["申报单","手续","产品","免税","酒店","填","广告","招手","老板","顺利","货样","总算","超过","交税"];
+var FILLS = [
   {s:"这家公司做了很多___，所以生意很好。", py:"Zhè jiā gōngsī zuò le hěn duō ___, suǒyǐ shēngyì hěn hǎo.", a:"广告"},
   {s:"买主看了___以后，决定买一千件。", py:"Mǎizhǔ kàn le ___ yǐhòu, juédìng mǎi yìqiān jiàn.", a:"货样"},
   {s:"进口这批货需要___吗？", py:"Jìnkǒu zhè pī huò xūyào ___ ma?", a:"交税"},
@@ -1503,13 +1518,13 @@ const FILLS = [
   {s:"这家___的服务很好，价格也不贵。", py:"Zhè jiā ___ de fúwù hěn hǎo, jiàgé yě bú guì.", a:"酒店"},
   {s:"这家工厂的___质量很好。", py:"Zhè jiā gōngchǎng de ___ zhìliàng hěn hǎo.", a:"产品"}
 ];
-const fillList = document.getElementById('fillList');
-const bankBox  = document.getElementById('wordBank');
+var fillList = document.getElementById('fillList');
+var bankBox  = document.getElementById('wordBank');
 
 function renderBank(){
   bankBox.innerHTML = '';
-  BANK.forEach(b=>{
-    const c = document.createElement('span');
+  BANK.forEach(function(b){
+    var c = document.createElement('span');
     c.className = 'chip';
     c.textContent = b;
     bankBox.appendChild(c);
@@ -1517,29 +1532,28 @@ function renderBank(){
 }
 function renderFills(){
   fillList.innerHTML = '';
-  FILLS.forEach((f, i)=>{
-    const li = document.createElement('li');
+  FILLS.forEach(function(f, i){
+    var li = document.createElement('li');
     li.className = 'fill-item';
     li.dataset.i = i;
-    const parts = f.s.split('___');
-    const opts = ['<option value="">— chọn —</option>']
-      .concat(BANK.map(b=>`<option value="${b}">${b}</option>`)).join('');
-    li.innerHTML = `
-      <span class="f-num">${i+1}</span>
-      <div class="f-body">
-        <div class="f-zh">${parts[0]}<select class="f-sel">${opts}</select>${parts[1] || ''}</div>
-        <div class="f-py">${f.py}</div>
-      </div>
-      <span class="f-mark"></span>`;
+    var parts = f.s.split('___');
+    var opts = ['<option value="">— chọn —</option>']
+      .concat(BANK.map(function(b){ return '<option value="' + b + '">' + b + '</option>'; })).join('');
+    li.innerHTML = '<span class="f-num">' + (i+1) + '</span>' +
+      '<div class="f-body">' +
+        '<div class="f-zh">' + parts[0] + '<select class="f-sel">' + opts + '</select>' + (parts[1] || '') + '</div>' +
+        '<div class="f-py">' + f.py + '</div>' +
+      '</div>' +
+      '<span class="f-mark"></span>';
     fillList.appendChild(li);
   });
 }
-document.getElementById('checkFill').addEventListener('click', ()=>{
-  let correct = 0;
-  document.querySelectorAll('.fill-item').forEach(li=>{
-    const i = Number(li.dataset.i);
-    const sel = li.querySelector('.f-sel');
-    const mark = li.querySelector('.f-mark');
+document.getElementById('checkFill').addEventListener('click', function(){
+  var correct = 0;
+  document.querySelectorAll('.fill-item').forEach(function(li){
+    var i = Number(li.dataset.i);
+    var sel = li.querySelector('.f-sel');
+    var mark = li.querySelector('.f-mark');
     li.classList.remove('ok','bad');
     if(sel.value === FILLS[i].a){
       li.classList.add('ok'); mark.textContent = '✓'; correct++;
@@ -1547,21 +1561,21 @@ document.getElementById('checkFill').addEventListener('click', ()=>{
       li.classList.add('bad'); mark.textContent = '✗';
     }
   });
-  const banner = document.getElementById('fillBanner');
+  var banner = document.getElementById('fillBanner');
   banner.classList.add('show');
   if(correct === FILLS.length){
     banner.className = 'result-banner show good';
-    banner.textContent = `🏆 Xuất sắc! Bạn làm đúng tất cả ${FILLS.length}/${FILLS.length} câu!`;
+    banner.textContent = '🏆 Xuất sắc! Bạn làm đúng tất cả ' + FILLS.length + '/' + FILLS.length + ' câu!';
   } else if(correct >= FILLS.length * 0.6){
     banner.className = 'result-banner show mid';
-    banner.textContent = `👍 Khá tốt! Bạn đúng ${correct}/${FILLS.length} câu. Xem lại những câu sai nhé!`;
+    banner.textContent = '👍 Khá tốt! Bạn đúng ' + correct + '/' + FILLS.length + ' câu. Xem lại những câu sai nhé!';
   } else {
     banner.className = 'result-banner show mid';
-    banner.textContent = `💪 Bạn đúng ${correct}/${FILLS.length} câu. Hãy ôn lại từ vựng rồi thử lại!`;
+    banner.textContent = '💪 Bạn đúng ' + correct + '/' + FILLS.length + ' câu. Hãy ôn lại từ vựng rồi thử lại!';
   }
 });
-document.getElementById('resetFill').addEventListener('click', ()=>{
-  document.querySelectorAll('.fill-item').forEach(li=>{
+document.getElementById('resetFill').addEventListener('click', function(){
+  document.querySelectorAll('.fill-item').forEach(function(li){
     li.classList.remove('ok','bad');
     li.querySelector('.f-sel').value = '';
     li.querySelector('.f-mark').textContent = '';
@@ -1574,7 +1588,7 @@ renderFills();
 /* =========================================================
    BÀI TẬP 2 · SẮP XẾP CÂU
 ========================================================= */
-const REORDER = [
+var REORDER = [
   { chunks:["做","公司","很多","这家","广告","了"], answer:"这家公司做了很多广告" },
   { chunks:["看了","买主","以后","货样","决定","买","一千件"], answer:"买主看了货样以后决定买一千件" },
   { chunks:["需要","进口","交税","这批货","吗"], answer:"进口这批货需要交税吗" },
@@ -1584,59 +1598,51 @@ const REORDER = [
   { chunks:["顺利","会议","进行","得","很"], answer:"会议进行得很顺利" },
   { chunks:["办","我们","入住手续","先去","酒店"], answer:"我们先去酒店办入住手续" }
 ];
-const reorderList = document.getElementById('reorderList');
-let roCorrectCount = 0;
-const roScoreEl = document.getElementById('roScore');
+var reorderList = document.getElementById('reorderList');
+var roCorrectSet = new Set();
+var roScoreEl = document.getElementById('roScore');
 
 function renderReorder(){
   reorderList.innerHTML = '';
-  roCorrectCount = 0;
+  roCorrectSet.clear();
   roScoreEl.textContent = 0;
-  REORDER.forEach((item, idx)=>{
-    const wrap = document.createElement('div');
+  REORDER.forEach(function(item, idx){
+    var wrap = document.createElement('div');
     wrap.className = 'reorder-item';
     wrap.dataset.i = idx;
-    const pool = item.chunks.map((w, k) => ({id:`c${idx}_${k}`, text:w}));
-    const shuffledPool = shuffle(pool);
-    const shuffledHTML = shuffledPool.map(c =>
-      `<button class="chunk-btn" data-id="${c.id}" data-text="${c.text}">${c.text}</button>`
-    ).join('');
-    wrap.innerHTML = `
-      <div class="ro-head">
-        <span class="ro-num">${idx+1}</span>
-        <span class="ro-label">Sắp xếp thành câu hoàn chỉnh</span>
-      </div>
-      <div class="build-area" data-role="build">
-        <span class="placeholder">Bấm vào từ bên dưới để bắt đầu xếp câu...</span>
-      </div>
-      <div class="chunk-area" data-role="pool">${shuffledHTML}</div>
-      <div class="ro-actions">
-        <button class="btn btn-soft reset-ro" style="padding:7px 14px;font-size:13px">🔄 Làm lại câu này</button>
-      </div>
-      <div class="ro-feedback" data-role="fb"></div>`;
+    var pool = item.chunks.map(function(w, k){ return {id:'c' + idx + '_' + k, text:w}; });
+    var shuffledPool = shuffle(pool);
+    var shuffledHTML = shuffledPool.map(function(c){
+      return '<button class="chunk-btn" data-id="' + c.id + '" data-text="' + c.text + '">' + c.text + '</button>';
+    }).join('');
+    wrap.innerHTML = '<div class="ro-head"><span class="ro-num">' + (idx+1) + '</span>' +
+      '<span class="ro-label">Sắp xếp thành câu hoàn chỉnh</span></div>' +
+      '<div class="build-area" data-role="build"><span class="placeholder">Bấm vào từ bên dưới để bắt đầu xếp câu...</span></div>' +
+      '<div class="chunk-area" data-role="pool">' + shuffledHTML + '</div>' +
+      '<div class="ro-actions"><button class="btn btn-soft reset-ro" style="padding:7px 14px;font-size:13px">🔄 Làm lại câu này</button></div>' +
+      '<div class="ro-feedback" data-role="fb"></div>';
     reorderList.appendChild(wrap);
-    wrap._pool = shuffledPool;
-    wrap.querySelectorAll('.chunk-area .chunk-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=> placeChunk(wrap, btn));
+    wrap.querySelectorAll('.chunk-area .chunk-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){ placeChunk(wrap, btn); });
     });
-    wrap.querySelector('.reset-ro').addEventListener('click', ()=> resetReorderItem(wrap));
+    wrap.querySelector('.reset-ro').addEventListener('click', function(){ resetReorderItem(wrap); });
   });
 }
 function placeChunk(wrap, btn){
   if(wrap.classList.contains('correct')) return;
-  const build = wrap.querySelector('[data-role="build"]');
-  const ph = build.querySelector('.placeholder');
+  var build = wrap.querySelector('[data-role="build"]');
+  var ph = build.querySelector('.placeholder');
   if(ph) ph.remove();
   btn.classList.add('used');
-  const placed = document.createElement('button');
+  var placed = document.createElement('button');
   placed.className = 'chunk-btn placed';
   placed.textContent = btn.dataset.text;
   placed.dataset.text = btn.dataset.text;
   placed.dataset.origin = btn.dataset.id;
-  placed.addEventListener('click', ()=>{
+  placed.addEventListener('click', function(){
     if(wrap.classList.contains('correct')) return;
     placed.remove();
-    const orig = wrap.querySelector(`.chunk-area .chunk-btn[data-id="${btn.dataset.id}"]`);
+    var orig = wrap.querySelector('.chunk-area .chunk-btn[data-id="' + btn.dataset.id + '"]');
     if(orig) orig.classList.remove('used');
     if(!build.querySelector('.chunk-btn')){
       build.innerHTML = '<span class="placeholder">Bấm vào từ bên dưới để bắt đầu xếp câu...</span>';
@@ -1647,11 +1653,11 @@ function placeChunk(wrap, btn){
   checkReorder(wrap);
 }
 function checkReorder(wrap){
-  const idx = Number(wrap.dataset.i);
-  const item = REORDER[idx];
-  const build = wrap.querySelector('[data-role="build"]');
-  const fb = wrap.querySelector('[data-role="fb"]');
-  const placed = [...build.querySelectorAll('.chunk-btn')];
+  var idx = Number(wrap.dataset.i);
+  var item = REORDER[idx];
+  var build = wrap.querySelector('[data-role="build"]');
+  var fb = wrap.querySelector('[data-role="fb"]');
+  var placed = Array.prototype.slice.call(build.querySelectorAll('.chunk-btn'));
   build.classList.remove('correct','wrong');
   wrap.classList.remove('correct','wrong');
   fb.textContent = '';
@@ -1661,8 +1667,8 @@ function checkReorder(wrap){
     updateRoScore();
     return;
   }
-  const currentText = placed.map(b=>b.dataset.text).join('');
-  const correctText = item.answer;
+  var currentText = placed.map(function(b){ return b.dataset.text; }).join('');
+  var correctText = item.answer;
   if(currentText === correctText){
     build.classList.add('correct');
     wrap.classList.add('correct');
@@ -1678,18 +1684,16 @@ function checkReorder(wrap){
   }
   updateRoScore();
 }
-const roCorrectSet = new Set();
 function updateRoScore(){
-  roCorrectCount = roCorrectSet.size;
-  roScoreEl.textContent = roCorrectCount;
+  roScoreEl.textContent = roCorrectSet.size;
 }
 function resetReorderItem(wrap){
-  const build = wrap.querySelector('[data-role="build"]');
+  var build = wrap.querySelector('[data-role="build"]');
   build.innerHTML = '<span class="placeholder">Bấm vào từ bên dưới để bắt đầu xếp câu...</span>';
   build.classList.remove('correct','wrong');
   wrap.classList.remove('correct','wrong');
-  wrap.querySelectorAll('.chunk-area .chunk-btn').forEach(b=> b.classList.remove('used'));
-  const fb = wrap.querySelector('[data-role="fb"]');
+  wrap.querySelectorAll('.chunk-area .chunk-btn').forEach(function(b){ b.classList.remove('used'); });
+  var fb = wrap.querySelector('[data-role="fb"]');
   fb.textContent = '';
   fb.className = 'ro-feedback';
   roCorrectSet.delete(Number(wrap.dataset.i));
@@ -1700,7 +1704,7 @@ renderReorder();
 /* =========================================================
    BÀI TẬP 3 · DỊCH CÂU
 ========================================================= */
-const TRANSLATE = [
+var TRANSLATE = [
   { src:"Tôi nhìn thấy một quảng cáo rất thú vị trên TV.", srcLang:"vi",
     ans:"我在电视上看到一个很有意思的广告。" },
   { src:"Quảng cáo này giới thiệu một loại điện thoại mới.", srcLang:"vi",
@@ -1722,44 +1726,37 @@ const TRANSLATE = [
   { src:"老板出差的时候，很多事情由副总经理负责。", srcLang:"zh",
     ans:"Khi ông chủ công ty đi công tác, nhiều việc do phó tổng giám đốc phụ trách." }
 ];
-const translateList = document.getElementById('translateList');
-let trDoneCount = 0;
-const trScoreEl = document.getElementById('trScore');
+var translateList = document.getElementById('translateList');
+var trDoneCount = 0;
+var trScoreEl = document.getElementById('trScore');
 
 function renderTranslate(){
   translateList.innerHTML = '';
   trDoneCount = 0;
   trScoreEl.textContent = 0;
-  TRANSLATE.forEach((item, idx)=>{
-    const wrap = document.createElement('div');
+  TRANSLATE.forEach(function(item, idx){
+    var wrap = document.createElement('div');
     wrap.className = 'trans-item';
     wrap.dataset.i = idx;
-    const langLabel = item.srcLang === 'vi'
+    var langLabel = item.srcLang === 'vi'
       ? '<span class="trans-lang">🇻🇳 → 🇨🇳</span>'
       : '<span class="trans-lang zh">🇨🇳 → 🇻🇳</span>';
-    wrap.innerHTML = `
-      <div class="trans-head">
-        <span class="trans-num">${idx+1}</span>
-        ${langLabel}
-      </div>
-      <div class="trans-source">${item.src}</div>
-      <textarea class="trans-input" placeholder="Nhập bản dịch của bạn ở đây..."></textarea>
-      <div class="trans-actions">
-        <button class="btn btn-soft show-ans" style="padding:9px 16px;font-size:13.5px">💡 Xem đáp án</button>
-        <button class="self-btn ok" data-self="ok" disabled>✓ Tôi viết đúng</button>
-        <button class="self-btn bad" data-self="bad" disabled>✗ Tôi viết sai</button>
-      </div>
-      <div class="trans-answer" hidden>
-        <span class="lab">Đáp án tham khảo</span>
-        <div>${item.ans}</div>
-      </div>`;
+    wrap.innerHTML = '<div class="trans-head"><span class="trans-num">' + (idx+1) + '</span>' + langLabel + '</div>' +
+      '<div class="trans-source">' + item.src + '</div>' +
+      '<textarea class="trans-input" placeholder="Nhập bản dịch của bạn ở đây..."></textarea>' +
+      '<div class="trans-actions">' +
+        '<button class="btn btn-soft show-ans" style="padding:9px 16px;font-size:13.5px">💡 Xem đáp án</button>' +
+        '<button class="self-btn ok" data-self="ok" disabled>✓ Tôi viết đúng</button>' +
+        '<button class="self-btn bad" data-self="bad" disabled>✗ Tôi viết sai</button>' +
+      '</div>' +
+      '<div class="trans-answer" hidden><span class="lab">Đáp án tham khảo</span><div>' + item.ans + '</div></div>';
     translateList.appendChild(wrap);
-    const input = wrap.querySelector('.trans-input');
-    const ansBox = wrap.querySelector('.trans-answer');
-    const showBtn = wrap.querySelector('.show-ans');
-    const okBtn = wrap.querySelector('.self-btn.ok');
-    const badBtn = wrap.querySelector('.self-btn.bad');
-    showBtn.addEventListener('click', ()=>{
+    var input = wrap.querySelector('.trans-input');
+    var ansBox = wrap.querySelector('.trans-answer');
+    var showBtn = wrap.querySelector('.show-ans');
+    var okBtn = wrap.querySelector('.self-btn.ok');
+    var badBtn = wrap.querySelector('.self-btn.bad');
+    showBtn.addEventListener('click', function(){
       ansBox.hidden = false;
       input.disabled = true;
       okBtn.disabled = false;
@@ -1767,45 +1764,45 @@ function renderTranslate(){
       showBtn.disabled = true;
       showBtn.style.opacity = .55;
     });
-    okBtn.addEventListener('click', ()=> markTranslate(wrap, true));
-    badBtn.addEventListener('click', ()=> markTranslate(wrap, false));
+    okBtn.addEventListener('click', function(){ markTranslate(wrap, true); });
+    badBtn.addEventListener('click', function(){ markTranslate(wrap, false); });
   });
 }
 function markTranslate(wrap, isCorrect){
   wrap.classList.remove('done-ok','done-bad');
   wrap.classList.add(isCorrect ? 'done-ok' : 'done-bad');
-  wrap.querySelectorAll('.self-btn').forEach(b=> b.disabled = true);
+  wrap.querySelectorAll('.self-btn').forEach(function(b){ b.disabled = true; });
   wrap.querySelector('.trans-input').disabled = true;
   if(!wrap.dataset.marked){
     wrap.dataset.marked = '1';
     trDoneCount++;
     trScoreEl.textContent = trDoneCount;
   }
-  const okBtn = wrap.querySelector('.self-btn.ok');
-  const badBtn = wrap.querySelector('.self-btn.bad');
+  var okBtn = wrap.querySelector('.self-btn.ok');
+  var badBtn = wrap.querySelector('.self-btn.bad');
   okBtn.classList.remove('ok'); badBtn.classList.remove('bad');
   if(isCorrect) okBtn.classList.add('ok');
   else badBtn.classList.add('bad');
 }
-document.getElementById('resetTranslate').addEventListener('click', ()=>{ renderTranslate(); });
+document.getElementById('resetTranslate').addEventListener('click', function(){ renderTranslate(); });
 renderTranslate();
 
 /* =========================================================
    PINYIN ROCKET — 30 từ vựng, không chia level
-   🐢 Tốc độ đã giảm đáng kể cho dễ chơi
+   Tốc độ chậm, dễ chơi
 ========================================================= */
 (function(){
   'use strict';
 
-  const TOTAL_WORDS = WORDS.map(w => ({hanzi: w.hanzi, pinyin: w.pinyin}));
-  const TOTAL_COUNT = TOTAL_WORDS.length;
+  var TOTAL_WORDS = WORDS.map(function(w){ return {hanzi: w.hanzi, pinyin: w.pinyin}; });
+  var TOTAL_COUNT = TOTAL_WORDS.length;
 
-  const MAX_LIVES = 3;
-  const BOTTOM_OFFSET = 34;
-  const WORD_START_Y = -90;
-  const MAX_ACTIVE = 2;             // 👈 giảm xuống 2 từ cùng lúc cho đỡ rối
+  var MAX_LIVES = 3;
+  var BOTTOM_OFFSET = 34;
+  var WORD_START_Y = -90;
+  var MAX_ACTIVE = 2;
 
-  const dom = {
+  var dom = {
     root:        document.getElementById('pgRoot'),
     stars:       document.getElementById('pgStars'),
     playArea:    document.getElementById('pgPlay'),
@@ -1825,7 +1822,7 @@ renderTranslate();
     ovBtn:       document.getElementById('pgOvBtn'),
   };
 
-  const game = {
+  var game = {
     running: false,
     paused: false,
     score: 0,
@@ -1842,21 +1839,20 @@ renderTranslate();
     initialized: false,
   };
 
-  /* ---------- Âm thanh ---------- */
-  let audioCtx = null;
+  var audioCtx = null;
   function ensureAudio(){
     if(!audioCtx){
       try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
       catch(e){ audioCtx = null; }
     }
-    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(function(){});
   }
   function beep(freq, dur, type, vol){
     if(!audioCtx) return;
     try{
-      const t = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      var t = audioCtx.currentTime;
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
       osc.type = type || 'sine';
       osc.frequency.setValueAtTime(freq, t);
       gain.gain.setValueAtTime(vol || 0.08, t);
@@ -1866,33 +1862,33 @@ renderTranslate();
       osc.start(t); osc.stop(t + dur);
     }catch(e){}
   }
-  function sfxFire(){ beep(900,0.08,'square',0.05); setTimeout(()=>beep(1300,0.1,'sine',0.06),30); }
+  function sfxFire(){ beep(900,0.08,'square',0.05); setTimeout(function(){ beep(1300,0.1,'sine',0.06); },30); }
   function sfxHit(){
     beep(1500,0.09,'sine',0.07);
-    setTimeout(()=>beep(2000,0.12,'sine',0.05),50);
-    setTimeout(()=>beep(700,0.14,'triangle',0.05),90);
+    setTimeout(function(){ beep(2000,0.12,'sine',0.05); },50);
+    setTimeout(function(){ beep(700,0.14,'triangle',0.05); },90);
   }
-  function sfxError(){ beep(180,0.18,'square',0.07); setTimeout(()=>beep(120,0.22,'square',0.06),60); }
+  function sfxError(){ beep(180,0.18,'square',0.07); setTimeout(function(){ beep(120,0.22,'square',0.06); },60); }
   function sfxWin(){
     beep(660,0.1,'sine',0.07);
-    setTimeout(()=>beep(880,0.1,'sine',0.07),110);
-    setTimeout(()=>beep(1320,0.18,'sine',0.07),220);
+    setTimeout(function(){ beep(880,0.1,'sine',0.07); },110);
+    setTimeout(function(){ beep(1320,0.18,'sine',0.07); },220);
   }
   function sfxGameOver(){
     beep(400,0.18,'sawtooth',0.06);
-    setTimeout(()=>beep(300,0.2,'sawtooth',0.06),160);
-    setTimeout(()=>beep(180,0.35,'sawtooth',0.06),340);
+    setTimeout(function(){ beep(300,0.2,'sawtooth',0.06); },160);
+    setTimeout(function(){ beep(180,0.35,'sawtooth',0.06); },340);
   }
 
-  /* ---------- Tiện ích ---------- */
-  function shuffle(arr){
-    for(let i = arr.length - 1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+  function shuffleLocal(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
     }
     return arr;
   }
-  const TONE_MAP = {
+
+  var TONE_MAP = {
     'ā':'a','á':'a','ǎ':'a','à':'a','a':'a',
     'ē':'e','é':'e','ě':'e','è':'e','e':'e',
     'ī':'i','í':'i','ǐ':'i','ì':'i','i':'i',
@@ -1903,24 +1899,23 @@ renderTranslate();
   };
   function normalizePinyin(str){
     return String(str).toLowerCase().split('')
-      .map(ch => TONE_MAP[ch] || ch).join('')
+      .map(function(ch){ return TONE_MAP[ch] || ch; }).join('')
       .replace(/[^a-z0-9]/g, '');
   }
   function getAccepted(pinyin){
-    const base = normalizePinyin(pinyin);
-    const set = new Set([base]);
-    if(base.includes('v')) set.add(base.replace(/v/g,'u'));
-    return Array.from(set);
+    var base = normalizePinyin(pinyin);
+    var set = [base];
+    if(base.indexOf('v') !== -1) set.push(base.replace(/v/g,'u'));
+    return set;
   }
 
-  /* ---------- Sao nền ---------- */
   function createStars(){
-    const frag = document.createDocumentFragment();
-    const count = window.innerWidth < 500 ? 70 : 120;
-    for(let i = 0; i < count; i++){
-      const s = document.createElement('div');
+    var frag = document.createDocumentFragment();
+    var count = window.innerWidth < 500 ? 70 : 120;
+    for(var i = 0; i < count; i++){
+      var s = document.createElement('div');
       s.className = 'pg-star';
-      const size = 1 + Math.random() * 2.2;
+      var size = 1 + Math.random() * 2.2;
       s.style.left = Math.random() * 100 + '%';
       s.style.top = Math.random() * 100 + '%';
       s.style.width = size + 'px';
@@ -1939,51 +1934,47 @@ renderTranslate();
     game.playH = dom.playArea.clientHeight;
   }
 
-  /* ---------- HUD ---------- */
   function updateHUD(){
     dom.score.textContent = game.score;
     dom.progress.textContent = game.destroyed + game.lost;
   }
   function renderLives(hitIndex){
-    let html = '';
-    for(let i = 0; i < MAX_LIVES; i++){
-      const alive = i < game.lives;
-      const isHit = (hitIndex === i);
-      html += `<span class="pg-heart${alive ? '' : ' empty'}${isHit ? ' hit' : ''}">${alive ? '❤️' : '🖤'}</span>`;
+    var html = '';
+    for(var i = 0; i < MAX_LIVES; i++){
+      var alive = i < game.lives;
+      var isHit = (hitIndex === i);
+      html += '<span class="pg-heart' + (alive ? '' : ' empty') + (isHit ? ' hit' : '') + '">' + (alive ? '❤️' : '🖤') + '</span>';
     }
     dom.lives.innerHTML = html;
   }
 
-  /* ---------- Vòng lặp ---------- */
-  let lastTime = 0;
-  let rafId = null;
+  var lastTime = 0;
+  var rafId = null;
   function loop(now){
-    const dt = Math.min((now - lastTime) / 1000, 0.08);
+    var dt = Math.min((now - lastTime) / 1000, 0.08);
     lastTime = now;
     if(game.running && !game.paused) update(dt);
     rafId = requestAnimationFrame(loop);
   }
 
   function update(dt){
-    /* Sinh từ — khoảng cách 3.4s → 2.4s, chậm hơn nhiều */
     if(game.wordsRemaining.length > 0 && game.activeWords.length < MAX_ACTIVE){
       game.spawnTimer -= dt;
       if(game.spawnTimer <= 0){
         spawnWord();
-        const consumed = game.destroyed + game.lost;
+        var consumed = game.destroyed + game.lost;
         game.spawnInterval = Math.max(2.4, 3.4 - consumed * 0.03);
         game.spawnTimer = game.spawnInterval;
       }
     }
-    for(let i = game.activeWords.length - 1; i >= 0; i--){
-      const w = game.activeWords[i];
+    for(var i = game.activeWords.length - 1; i >= 0; i--){
+      var w = game.activeWords[i];
       w.y += w.speed * dt;
       w.el.style.top = w.y + 'px';
       if(w.y > game.playH - BOTTOM_OFFSET){
         w.alive = false;
         w.el.classList.add('escaped');
-        const el = w.el;
-        setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 500);
+        (function(el){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 500); })(w.el);
         game.activeWords.splice(i, 1);
         game.lost++;
         updateHUD();
@@ -2002,39 +1993,35 @@ renderTranslate();
     }
   }
 
-  /* ---------- Sinh từ ---------- */
   function spawnWord(){
-    const data = game.wordsRemaining.shift();
+    var data = game.wordsRemaining.shift();
     if(!data) return;
+    var consumed = game.destroyed + game.lost;
+    var speed = Math.min(55, 22 + consumed * 0.7);
 
-    /* 🐢 Tốc độ chậm: 22 px/s ban đầu → 55 px/s về sau */
-    const consumed = game.destroyed + game.lost;
-    const speed = Math.min(55, 22 + consumed * 0.7);
-
-    const el = document.createElement('div');
+    var el = document.createElement('div');
     el.className = 'pg-word';
-    el.innerHTML = `
-      <div class="pg-word-hanzi">${data.hanzi}</div>
-      <div class="pg-word-pinyin">${data.pinyin}</div>`;
+    el.innerHTML = '<div class="pg-word-hanzi">' + data.hanzi + '</div>' +
+                   '<div class="pg-word-pinyin">' + data.pinyin + '</div>';
     el.style.visibility = 'hidden';
     el.style.left = '0px';
     el.style.top = WORD_START_Y + 'px';
     dom.playArea.appendChild(el);
 
-    const wW = el.offsetWidth;
-    const pad = 14;
-    const maxX = Math.max(pad, game.playW - wW - pad);
-    const x = pad + Math.random() * Math.max(0, maxX - pad);
+    var wW = el.offsetWidth;
+    var pad = 14;
+    var maxX = Math.max(pad, game.playW - wW - pad);
+    var x = pad + Math.random() * Math.max(0, maxX - pad);
     el.style.left = x + 'px';
     el.style.visibility = 'visible';
 
-    const word = {
+    var word = {
       id: ++game.idCounter,
       hanzi: data.hanzi,
       pinyin: data.pinyin,
       accepted: getAccepted(data.pinyin),
       x: x, y: WORD_START_Y,
-      speed,
+      speed: speed,
       el: el, alive: true,
     };
     el.animate(
@@ -2044,38 +2031,37 @@ renderTranslate();
     game.activeWords.push(word);
   }
 
-  /* ---------- Bắn rocket ---------- */
   function fireRocket(word){
     word.alive = false;
     word.el.classList.add('locked');
     sfxFire();
 
-    const areaRect = dom.playArea.getBoundingClientRect();
-    const wordRect = word.el.getBoundingClientRect();
-    const targetX = wordRect.left - areaRect.left + wordRect.width / 2;
-    const targetY = wordRect.top - areaRect.top + wordRect.height / 2;
-    const startX = areaRect.width / 2;
-    const startY = areaRect.height - 6;
+    var areaRect = dom.playArea.getBoundingClientRect();
+    var wordRect = word.el.getBoundingClientRect();
+    var targetX = wordRect.left - areaRect.left + wordRect.width / 2;
+    var targetY = wordRect.top - areaRect.top + wordRect.height / 2;
+    var startX = areaRect.width / 2;
+    var startY = areaRect.height - 6;
 
-    const rocket = document.createElement('div');
+    var rocket = document.createElement('div');
     rocket.className = 'pg-rocket';
     rocket.innerHTML = '<div class="pg-rocket-body"></div><div class="pg-rocket-flame"></div>';
-    const RW = 20, RH = 32;
+    var RW = 20, RH = 32;
     rocket.style.left = (startX - RW / 2) + 'px';
     rocket.style.top = (startY - RH / 2) + 'px';
     dom.playArea.appendChild(rocket);
 
-    const dx = targetX - startX;
-    const dy = targetY - startY;
-    const dist = Math.hypot(dx, dy);
-    const angle = Math.atan2(dx, -dy) * 180 / Math.PI;
+    var dx = targetX - startX;
+    var dy = targetY - startY;
+    var dist = Math.hypot(dx, dy);
+    var angle = Math.atan2(dx, -dy) * 180 / Math.PI;
     void rocket.offsetWidth;
-    const duration = Math.min(520, Math.max(220, dist * 0.75));
+    var duration = Math.min(520, Math.max(220, dist * 0.75));
 
-    rocket.style.transition = `transform ${duration}ms cubic-bezier(.35,.05,.7,1)`;
-    rocket.style.transform = `rotate(${angle}deg) translateY(-${dist}px)`;
+    rocket.style.transition = 'transform ' + duration + 'ms cubic-bezier(.35,.05,.7,1)';
+    rocket.style.transform = 'rotate(' + angle + 'deg) translateY(-' + dist + 'px)';
 
-    setTimeout(()=>{
+    setTimeout(function(){
       if(rocket.parentNode) rocket.parentNode.removeChild(rocket);
       explode(targetX, targetY);
       sfxHit();
@@ -2086,9 +2072,8 @@ renderTranslate();
   function destroyWord(word){
     word.el.classList.remove('locked');
     word.el.classList.add('exploding');
-    const el = word.el;
-    setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 400);
-    const idx = game.activeWords.indexOf(word);
+    (function(el){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 400); })(word.el);
+    var idx = game.activeWords.indexOf(word);
     if(idx > -1) game.activeWords.splice(idx, 1);
     game.score += 10;
     game.destroyed++;
@@ -2099,31 +2084,31 @@ renderTranslate();
   }
 
   function explode(x, y){
-    const sw = document.createElement('div');
+    var sw = document.createElement('div');
     sw.className = 'pg-shockwave';
     sw.style.left = x + 'px';
     sw.style.top = y + 'px';
     dom.playArea.appendChild(sw);
-    setTimeout(()=>{ if(sw.parentNode) sw.parentNode.removeChild(sw); }, 550);
-    const colors = ['#ffd93d','#ff6b6b','#ffffff','#7fd6ff','#ff9f43'];
-    const N = 14;
-    for(let i = 0; i < N; i++){
-      const p = document.createElement('div');
+    setTimeout(function(){ if(sw.parentNode) sw.parentNode.removeChild(sw); }, 550);
+    var colors = ['#ffd93d','#ff6b6b','#ffffff','#7fd6ff','#ff9f43'];
+    var N = 14;
+    for(var i = 0; i < N; i++){
+      var p = document.createElement('div');
       p.className = 'pg-particle';
-      const ang = (Math.PI * 2 * i) / N + Math.random() * 0.4;
-      const d = 36 + Math.random() * 46;
+      var ang = (Math.PI * 2 * i) / N + Math.random() * 0.4;
+      var d = 36 + Math.random() * 46;
       p.style.left = x + 'px';
       p.style.top = y + 'px';
       p.style.setProperty('--dx', (Math.cos(ang) * d).toFixed(1) + 'px');
       p.style.setProperty('--dy', (Math.sin(ang) * d).toFixed(1) + 'px');
-      const c = colors[Math.floor(Math.random() * colors.length)];
+      var c = colors[Math.floor(Math.random() * colors.length)];
       p.style.background = c;
-      p.style.boxShadow = `0 0 10px ${c}`;
-      const sz = 5 + Math.random() * 5;
+      p.style.boxShadow = '0 0 10px ' + c;
+      var sz = 5 + Math.random() * 5;
       p.style.width = sz + 'px';
       p.style.height = sz + 'px';
       dom.playArea.appendChild(p);
-      setTimeout(()=>{ if(p.parentNode) p.parentNode.removeChild(p); }, 680);
+      (function(el){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 680); })(p);
     }
   }
 
@@ -2139,28 +2124,29 @@ renderTranslate();
     }
   }
 
-  let inputFlashTimer = null;
+  var inputFlashTimer = null;
   function flashInput(type){
     dom.inputRow.classList.remove('success','error');
     void dom.inputRow.offsetWidth;
     if(type === 'success') dom.inputRow.classList.add('success');
     else if(type === 'error') dom.inputRow.classList.add('error');
     clearTimeout(inputFlashTimer);
-    inputFlashTimer = setTimeout(()=>{
+    inputFlashTimer = setTimeout(function(){
       dom.inputRow.classList.remove('success','error');
     }, 520);
   }
 
   function submitAnswer(){
     if(!game.running || game.paused) return;
-    const raw = dom.input.value.trim();
+    var raw = dom.input.value.trim();
     if(!raw) return;
     dom.input.value = '';
-    const norm = normalizePinyin(raw);
-    let match = null, lowest = -Infinity;
-    for(const w of game.activeWords){
+    var norm = normalizePinyin(raw);
+    var match = null, lowest = -Infinity;
+    for(var i = 0; i < game.activeWords.length; i++){
+      var w = game.activeWords[i];
       if(!w.alive) continue;
-      if(w.accepted.includes(norm)){
+      if(w.accepted.indexOf(norm) !== -1){
         if(w.y > lowest){ lowest = w.y; match = w; }
       }
     }
@@ -2182,7 +2168,7 @@ renderTranslate();
     game.score = 0;
     game.lives = MAX_LIVES;
     game.activeWords = [];
-    game.wordsRemaining = shuffle([...TOTAL_WORDS]);
+    game.wordsRemaining = shuffleLocal(TOTAL_WORDS.slice());
     game.destroyed = 0;
     game.lost = 0;
     game.spawnTimer = 0.3;
@@ -2190,7 +2176,7 @@ renderTranslate();
     game.idCounter = 0;
     game.paused = false;
 
-    dom.playArea.querySelectorAll('.pg-word, .pg-rocket, .pg-particle, .pg-shockwave').forEach(el => {
+    dom.playArea.querySelectorAll('.pg-word, .pg-rocket, .pg-particle, .pg-shockwave').forEach(function(el){
       if(el.parentNode) el.parentNode.removeChild(el);
     });
 
@@ -2201,7 +2187,7 @@ renderTranslate();
     dom.input.value = '';
     dom.input.disabled = false;
 
-    setTimeout(()=>{
+    setTimeout(function(){
       updatePlaySize();
       if(document.getElementById('rocket').classList.contains('active')){
         dom.input.focus();
@@ -2214,14 +2200,14 @@ renderTranslate();
     showOverlay({
       icon: '🏆',
       title: 'Hoàn thành!',
-      text: `Bạn đã bắn hạ toàn bộ ${TOTAL_COUNT} từ vựng trong bài. Tuyệt vời!`,
+      text: 'Bạn đã bắn hạ toàn bộ ' + TOTAL_COUNT + ' từ vựng trong bài. Tuyệt vời!',
       stats: [
         {label:'Điểm', value: game.score},
         {label:'Bắn trúng', value: game.destroyed + '/' + TOTAL_COUNT},
         {label:'Để rơi', value: game.lost},
       ],
       btnText: '🎮 Chơi lại',
-      onBtn: () => startGame(),
+      onBtn: function(){ startGame(); },
     });
   }
 
@@ -2230,61 +2216,62 @@ renderTranslate();
     showOverlay({
       icon: '💥',
       title: 'Hết mạng!',
-      text: `Bạn đã bắn hạ ${game.destroyed}/${TOTAL_COUNT} từ. Thử lại nhé!`,
+      text: 'Bạn đã bắn hạ ' + game.destroyed + '/' + TOTAL_COUNT + ' từ. Thử lại nhé!',
       stats: [
         {label:'Điểm', value: game.score},
         {label:'Bắn trúng', value: game.destroyed},
         {label:'Để rơi', value: game.lost},
       ],
       btnText: '🔄 Thử lại',
-      onBtn: () => startGame(),
+      onBtn: function(){ startGame(); },
     });
   }
 
-  function showOverlay({icon, title, text, stats, btnText, onBtn, showHowTo}){
-    dom.ovIcon.textContent = icon;
-    dom.ovTitle.textContent = title;
-    dom.ovText.textContent = text;
-    dom.ovHowTo.hidden = !showHowTo;
-    if(stats && stats.length){
+  function showOverlay(opts){
+    dom.ovIcon.textContent = opts.icon;
+    dom.ovTitle.textContent = opts.title;
+    dom.ovText.textContent = opts.text;
+    dom.ovHowTo.hidden = !opts.showHowTo;
+    if(opts.stats && opts.stats.length){
       dom.ovStats.hidden = false;
-      dom.ovStats.innerHTML = stats.map(s => `
-        <div class="pg-ov-stat">
-          <div class="pg-ov-stat-label">${s.label}</div>
-          <div class="pg-ov-stat-value">${s.value}</div>
-        </div>`).join('');
+      dom.ovStats.innerHTML = opts.stats.map(function(s){
+        return '<div class="pg-ov-stat">' +
+          '<div class="pg-ov-stat-label">' + s.label + '</div>' +
+          '<div class="pg-ov-stat-value">' + s.value + '</div>' +
+        '</div>';
+      }).join('');
     } else {
       dom.ovStats.hidden = true;
       dom.ovStats.innerHTML = '';
     }
-    dom.ovBtn.textContent = btnText || 'Bắt đầu';
-    dom.ovBtn.onclick = () => {
+    dom.ovBtn.textContent = opts.btnText || 'Bắt đầu';
+    dom.ovBtn.onclick = function(){
       ensureAudio();
       dom.overlay.classList.remove('show');
-      if(typeof onBtn === 'function') onBtn();
+      if(typeof opts.onBtn === 'function') opts.onBtn();
     };
     dom.overlay.classList.add('show');
     dom.overlay.scrollTop = 0;
   }
 
-  dom.fireBtn.addEventListener('click', () => {
+  dom.fireBtn.addEventListener('click', function(){
     ensureAudio();
     submitAnswer();
     dom.input.focus();
   });
-  dom.input.addEventListener('keydown', (e) => {
+  dom.input.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){
       e.preventDefault();
       ensureAudio();
       submitAnswer();
     }
   });
-  dom.playArea.addEventListener('click', () => {
+  dom.playArea.addEventListener('click', function(){
     if(game.running && dom.root.closest('.panel').classList.contains('active')){
       dom.input.focus();
     }
   });
-  document.addEventListener('visibilitychange', () => {
+  document.addEventListener('visibilitychange', function(){
     if(document.hidden){
       if(game.running) game.paused = true;
     } else {
@@ -2294,27 +2281,27 @@ renderTranslate();
       }
     }
   });
-  let resizeTimer = null;
-  window.addEventListener('resize', () => {
+  var resizeTimer = null;
+  window.addEventListener('resize', function(){
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
+    resizeTimer = setTimeout(function(){
       updatePlaySize();
       createStars();
     }, 180);
   });
 
   window.PinyinRocket = {
-    pause(){ if(game.running) game.paused = true; },
-    resume(){
+    pause: function(){ if(game.running) game.paused = true; },
+    resume: function(){
       if(!game.initialized) return;
       updatePlaySize();
       if(game.running){
         game.paused = false;
         lastTime = performance.now();
-        setTimeout(()=>{ if(game.running) dom.input.focus(); }, 60);
+        setTimeout(function(){ if(game.running) dom.input.focus(); }, 60);
       }
     },
-    isRunning(){ return game.running; },
+    isRunning: function(){ return game.running; },
   };
 
   function init(){
@@ -2329,7 +2316,7 @@ renderTranslate();
       text: 'Gõ pinyin để bắn hạ các từ tiếng Trung trong bài học đang rơi xuống!',
       showHowTo: true,
       btnText: 'Bắt đầu',
-      onBtn: () => startGame(),
+      onBtn: function(){ startGame(); },
     });
     game.initialized = true;
     lastTime = performance.now();
